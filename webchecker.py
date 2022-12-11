@@ -7,7 +7,7 @@ file_name = "webdata.json"
 
 if len(sys.argv) > 1:
 	url = sys.argv[1]
-	response = requests.get(url)
+	response = requests.get(url, headers = {"User-Agent": "webchecker"})
 	data = []
 	if os.path.exists(file_name):
 		with open(file_name, "r") as file:
@@ -25,7 +25,7 @@ else:
 		else:
 			changes = False
 			for page in data:
-				response = requests.get(page["url"])
+				response = requests.get(page["url"], headers = {"User-Agent": "webchecker"})
 				old = page["text"].split("\n")
 				new = response.text.split("\n")
 				removed = ""
