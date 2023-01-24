@@ -29,12 +29,15 @@ else:
 				old = page["text"].split("\n")
 				new = response.text.split("\n")
 				removed = ""
-				for line in old:
+				for index, line in enumerate(old):
 					if line in new:
-						new.remove(line)
+						new[new.index(line)] = ""
 					else:
-						removed += line + "\n"
-				added = "\n".join(new)
+						removed += str(index + 1) + "| " + line.strip(" \t\u00a0") + "\n"
+				added = ""
+				for index, line in enumerate(new):
+					if line:
+						added += str(index + 1) + "| " + line.strip(" \t\u00a0") + "\n"
 				if removed or added:
 					changes = True
 					page["text"] = response.text
@@ -42,7 +45,7 @@ else:
 					if removed:
 						print("REMOVED:\n" + removed)
 					if added:
-						print("ADDED:\n" + added + "\n")
+						print("ADDED:\n" + added)
 			if changes:
 				with open(file_name, "w") as file:
 					json.dump(data, file)
