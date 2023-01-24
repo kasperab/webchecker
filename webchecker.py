@@ -4,19 +4,57 @@ import os.path
 import sys
 
 file_name = "webdata.json"
+no_data = "Not following any web pages, do 'python3 webchecker.py +[URL]' to add page"
 
 if len(sys.argv) > 1:
-	url = sys.argv[1]
-	response = requests.get(url, headers = {"User-Agent": "webchecker"})
-	data = []
-	if os.path.exists(file_name):
-		with open(file_name, "r") as file:
-			data = json.load(file)
-	data.append({"url": url, "text": response.text})
-	with open(file_name, "w") as file:
-		json.dump(data, file)
+	argument = sys.argv[1]
+	if argument == "list":
+		if os.path.exists(file_name):
+			with open(file_name, "r") as file:
+				data = json.load(file)
+			if data:
+				for page in data:
+					print(page["url"])
+			else:
+				print(no_data)
+		else:
+			print(no_data)
+	elif argument[0] == "+":
+		url = argument[1:]
+		response = requests.get(url, headers = {"User-Agent": "webchecker"})
+		data = []
+		if os.path.exists(file_name):
+			with open(file_name, "r") as file:
+				data = json.load(file)
+		data.append({"url": url, "text": response.text})
+		with open(file_name, "w") as file:
+			json.dump(data, file)
+		print("Added " + url)
+	elif argument[0] == "-":
+		url = argument[1:]
+		if os.path.exists(file_name):
+			with open(file_name, "r") as file:
+				data = json.load(file)
+			if data:
+				removed = False
+				for page in data:
+					if page["url"] == url:
+						data.remove(page)
+						removed = True
+						break
+				if removed:
+					with open(file_name, "w") as file:
+						json.dump(data, file)
+					print("Removed " + url)
+				else:
+					print("URL not found")
+			else:
+				print(no_data)
+		else:
+			print(no_data)
+	else:
+		print("Unknown argument")
 else:
-	no_data = "Not following any web pages, do 'python3 webchecker.py [URL]' to add page"
 	if os.path.exists(file_name):
 		with open(file_name, "r") as file:
 			data = json.load(file)
